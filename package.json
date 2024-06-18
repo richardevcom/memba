@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "lint": "tsc",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier . --check --cache --cache-location='node_modules/.cache/.prettiercache'",
+    "format:fix": "prettier . --write --cache --cache-location='node_modules/.cache/.prettiercache' --log-level=warn",
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint . --cache --cache-location 'node_modules/.cache/.eslintcache' --max-warnings 0",
+    "lint:fix": "ESLINT_USE_FLAT_CONFIG=false eslint . --fix --cache --cache-location 'node_modules/.cache/.eslintcache' --max-warnings 0",
     "build": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js",
     "start": "node dist/index.js",
     "dev:tsc": "tsc --watch --preserveWatchOutput",
@@ -19,7 +23,12 @@
     "@types/node": "^20.14.5",
     "esbuild": "^0.21.5",
     "npm-run-all": "^4.1.5",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "prettier": "^3.0.3",
+    "prettier-plugin-packagejson": "^2.4.3",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "eslint": "8.48.0"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
