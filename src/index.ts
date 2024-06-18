@@ -7,8 +7,8 @@ import MessagingResponse from 'twilio/lib/twiml/MessagingResponse';
 dotenv.config();
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || 'localhost';
-if (!process.env.TWILIO_AUTH_TOKEN) {
-  throw new Error('TWILIO_AUTH_TOKEN is required');
+if (!process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_ACCOUNT_SID) {
+  throw new Error('TWILIO_AUTH_TOKEN or TWILIO_ACCOUNT_SID are missing.');
 }
 
 const app = express();
