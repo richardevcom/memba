@@ -1,30 +1,32 @@
 import express, { type Request, type Response } from 'express';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
+import twilio from 'twilio';
+import MessagingResponse from 'twilio/lib/twiml/MessagingResponse.js';
 
 dotenv.config();
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || 'localhost';
+if (!process.env.TWILIO_AUTH_TOKEN) {
+  throw new Error('TWILIO_AUTH_TOKEN is required');
+}
 
 const app = express();
 app.use(helmet()); // adds important security headers to the response
 app.use(express.json()); // for parsing application/json
 app.disable('x-powered-by'); // disable the X-Powered-By header to reduce server fingerprint
 
-// curl http://localhost:3000/
-app.get('/', (req: Request, res: Response) => {
-  res.send({
-    type: 'GET',
-    time: new Date().toISOString(),
-  });
+// health check
+app.get('/', (_req: Request, res: Response) => {
+  res.send('Ok');
 });
-// curl -X POST -d '{"name": "Ayush", "age": 20}' -H 'Content-Type: application/json' http://localhost:3000/
-app.post('/', (req: Request, res: Response) => {
-  console.log(JSON.stringify(req.body));
-  res.send({
-    type: 'POST',
-    time: new Date().toISOString(),
-  });
+
+// webhook trigged by twillo when a message is sent to the phone number.
+app.post('/message', twilio.webhook(), (req: Request, res: Response) => {
+  const response = new MessagingResponse();
+  response.message(`Hi! You just sent a message ${req.body.Body.length} characters long. This was sent from the express server.`);
+  res.set('Content-Type', 'text/xml');
+  res.send(response.toString());
 });
 
 app.listen(PORT, HOST, () => {
