@@ -7,8 +7,8 @@ import MessagingResponse from 'twilio/lib/twiml/MessagingResponse';
 dotenv.config();
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || 'localhost';
-if (!process.env.TWILIO_AUTH_TOKEN) {
-  throw new Error('TWILIO_AUTH_TOKEN is required');
+if (!process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_ACCOUNT_SID) {
+  throw new Error('TWILIO_AUTH_TOKEN or TWILIO_ACCOUNT_SID are missing.');
 }
 
 const app = express();
@@ -24,11 +24,15 @@ app.get('/', (_req: Request, res: Response) => {
 // webhook trigged by twillo when a message is sent to the phone number.
 app.post('/message', twilio.webhook(), (req: Request, res: Response) => {
   const response = new MessagingResponse();
-  response.message(`Hi! You just sent a message ${req.body.Body.length} characters long. This was sent from the express server.`);
+  response.message(
+    `Hi! You just sent a message ${req.body.Body.length} characters long. This was sent from the express server.`,
+  );
   res.set('Content-Type', 'text/xml');
   res.send(response.toString());
 });
 
 app.listen(PORT, HOST, () => {
-  console.log(`[rembo] server running on port ${process.env.HOST}:${process.env.PORT}`);
+  console.log(
+    `[rembo] server running on port ${process.env.HOST}:${process.env.PORT}`,
+  );
 });
