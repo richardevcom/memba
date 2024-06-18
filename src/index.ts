@@ -2,7 +2,7 @@ import express, { type Request, type Response } from 'express';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import twilio from 'twilio';
-import MessagingResponse from 'twilio/lib/twiml/MessagingResponse.js';
+import MessagingResponse from 'twilio/lib/twiml/MessagingResponse';
 
 dotenv.config();
 const PORT = Number(process.env.PORT || 3000);
