@@ -24,11 +24,15 @@ app.get('/', (_req: Request, res: Response) => {
 // webhook trigged by twillo when a message is sent to the phone number.
 app.post('/message', twilio.webhook(), (req: Request, res: Response) => {
   const response = new MessagingResponse();
-  response.message(`Hi! You just sent a message ${req.body.Body.length} characters long. This was sent from the express server.`);
+  response.message(
+    `Hi! You just sent a message ${req.body.Body.length} characters long. This was sent from the express server.`,
+  );
   res.set('Content-Type', 'text/xml');
   res.send(response.toString());
 });
 
 app.listen(PORT, HOST, () => {
-  console.log(`[rembo] server running on port ${process.env.HOST}:${process.env.PORT}`);
+  console.log(
+    `[rembo] server running on port ${process.env.HOST}:${process.env.PORT}`,
+  );
 });
