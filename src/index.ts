@@ -11,6 +11,9 @@ import {
 } from '@google-cloud/vertexai';
 
 dotenv.config();
+const SYSTEM_PROMPT =
+  process.env.PROMPT ||
+  "Parse reminder text into JSON. Expected format: {'reminder_text': <text>, 'reminder_datetime': '<ISO 8601 extended format>'}.  1. Extract date and time from reminder text.  2. Parse the date and time together using a natural language format specifier (e.g., '%dth %B %Y %H:%M').  3. Convert the parsed datetime object to ISO 8601 extended format (e.g., 'YYYY-MM-DDTHH:mm:ss.sssZ'). Strip reminder intro text (e.g. 'Remind me to'). Return only JSON.";
 const AI_MODEL = process.env.MODEL || 'gemini-1.5-flash-001';
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || 'localhost';
@@ -52,7 +55,7 @@ const generativeModel = vertex_ai.preview.getGenerativeModel({
     role: 'system',
     parts: [
       {
-        text: "Parse reminder text into JSON. Expected format: {'reminder_text': <text>, 'reminder_datetime': '<ISO 8601 extended format>'}.  1. Extract date and time from reminder text.  2. Parse the date and time together using a natural language format specifier (e.g., '%dth %B %Y %H:%M').  3. Convert the parsed datetime object to ISO 8601 extended format (e.g., 'YYYY-MM-DDTHH:mm:ss.sssZ'). Strip reminder intro text (e.g. 'Remind me to'). Return only JSON.",
+        text: SYSTEM_PROMPT,
       },
     ],
   },
