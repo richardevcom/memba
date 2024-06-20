@@ -24,6 +24,7 @@
     "express": "^4.19.2",
     "helmet": "^7.1.0",
     "morgan": "^1.10.0",
+    "mysql": "^2.18.1",
     "twilio": "^5.1.1"
   },
   "devDependencies": {
