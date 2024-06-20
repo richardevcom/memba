@@ -91,3 +91,28 @@ jobs:
           push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }} # only push on master branch
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: docker
+    steps:
+      - name: checkout.
+        uses: actions/checkout@v3
+
+      - name: auth with gcloud.
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: setup gcloud sdk.
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: charged-mind-426813-t5
+
+      - name: deploy to cloud run.
+        run: |
+          gcloud run deploy rembo \
+            --image=docker.io/isitayush/rembo:${{ steps.meta.outputs.tags }} \
+            --region=europe-west1 \
+            --platform=managed \
+            --allow-unauthenticated
