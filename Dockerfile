@@ -1,3 +1,4 @@
+ARG LOGGING_OPTION=CLOUD_LOGGING_ONLY
 FROM node:18-alpine AS base
 
 FROM base AS setup
