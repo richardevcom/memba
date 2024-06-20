@@ -25,18 +25,22 @@ app.get('/', (_req: Request, res: Response) => {
 });
 
 // webhook trigged by twillo when a message is sent to the phone number.
-app.post('/message', twilio.webhook(), (req: Request, res: Response) => {
-  console.log('requestdump:', {
-    body: JSON.stringify(req.body, null, 2),
-    headers: JSON.stringify(req.headers, null, 2),
-  });
-  const response = new MessagingResponse();
-  response.message(
-    `Hi! You just sent a message ${req.body.Body.length} characters long. This was sent from the express server.`,
-  );
-  res.set('Content-Type', 'text/xml');
-  return res.send(response.toString());
-});
+app.post(
+  '/message',
+  twilio.webhook(process.env.TWILIO_AUTH_TOKEN),
+  (req: Request, res: Response) => {
+    console.log('requestdump:', {
+      body: JSON.stringify(req.body, null, 2),
+      headers: JSON.stringify(req.headers, null, 2),
+    });
+    const response = new MessagingResponse();
+    response.message(
+      `Hi! You just sent a message ${req.body.Body.length} characters long. This was sent from the express server.`,
+    );
+    res.set('Content-Type', 'text/xml');
+    return res.send(response.toString());
+  },
+);
 
 app.listen(PORT, HOST, () => {
   console.log(
