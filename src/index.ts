@@ -15,6 +15,7 @@ if (!process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_ACCOUNT_SID) {
 const app = express();
 app.use(helmet()); // adds important security headers to the response
 app.use(express.json()); // for parsing application/json
+app.use(express.urlencoded()); // for parsing application/x-www-form-urlencoded
 app.disable('x-powered-by'); // disable the X-Powered-By header to reduce server fingerprint
 app.use(morgan('combined')); // log all requests
 
