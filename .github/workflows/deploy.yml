@@ -1,0 +1,100 @@
+name: deploy.
+
+on:
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
+env:
+  FORCE_COLOR: 3
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout.
+        uses: actions/checkout@v3
+
+      - name: setup.
+        uses: ./actions/setup
+
+      - name: docker login.
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: gather metadata.
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            isitayush/rembo
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}.{{patch}}
+
+      - name: build & push.
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }} # only push on master branch
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: save tags.
+        run: echo ${{ steps.meta.outputs.tags }} > tags.txt
+
+      - name: upload tags.
+        uses: actions/upload-artifact@v3
+        with:
+          name: image-tags
+          path: tags.txt
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: docker
+    steps:
+      - name: checkout.
+        uses: actions/checkout@v3
+
+      - name: download tags.
+        uses: actions/download-artifact@v3
+        with:
+          name: image-tags
+          path: .
+
+      - name: read tags
+        id: read-tags
+        run: |
+          TAG=$(cat tags.txt)
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+      - name: auth with gcloud.
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: setup gcloud sdk.
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+
+      - name: deploy to cloud run.
+        run: |
+          IMAGE_URL=docker.io/${{ env.TAG }}
+          echo "deploying to Cloud Run with image $IMAGE_URL"
+          gcloud run deploy rembo \
+            --image=$IMAGE_URL \
+            --region=${{ vars.GCP_REGION }} \
+            --platform=managed \
+            --set-env-vars TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }} \
+            --set-env-vars TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }} \
+            --port ${{ vars.PORT }} \
+            --allow-unauthenticated
