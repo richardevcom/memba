@@ -10,15 +10,19 @@ const vertexAi = new VertexAI({
   location: config.vertex.location,
 });
 
-const instructions =
-  "Parse reminder text into JSON. Expected format: {'reminder_text': <text>, 'reminder_datetime': '<ISO 8601 extended format>'}.  1. Extract date and time from reminder text.  2. Parse the date and time together using a natural language format specifier (e.g., '%dth %B %Y %H:%M').  3. Convert the parsed datetime object to ISO 8601 extended format (e.g., 'YYYY-MM-DDTHH:mm:ss.sssZ'). Strip reminder intro text (e.g. 'Remind me to'). Return only JSON.";
+const instructions = `
+  Parse reminder text into JSON. Expected format: {'reminder_text': <text>, 'reminder_datetime': '<ISO 8601 extended format>'}.
+  1. Extract date and time from reminder text.
+  2. Parse the date and time together using a natural language format specifier (e.g., '%dth %B %Y %H:%M').
+  3. Convert the parsed datetime object to ISO 8601 extended format (e.g., 'YYYY-MM-DDTHH:mm:ss.sssZ'). Strip reminder intro text (e.g. 'Remind me to'). Return only JSON.
+`;
 
 const generativeModel = vertexAi.preview.getGenerativeModel({
   model: config.vertex.model,
   generationConfig: {
-    maxOutputTokens: 1000,
-    temperature: 1,
-    topP: 0.95,
+    maxOutputTokens: 1000, // Optional, can be passed in options
+    temperature: 1, // Optional, can be passed in options
+    topP: 0.95, // Optional, can be passed in options
   },
   safetySettings: [
     {
