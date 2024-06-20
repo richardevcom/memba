@@ -1,22 +1,22 @@
-# Use a minimal Node.js image for the build stage
 steps:
-  - name: 'node:18-alpine'  # Adjust Node.js version if needed
+  - name: 'node:18-alpine'
+    args:
+      - install
     entrypoint: npm
-    args: ['install']
-  - name: 'node:18-alpine'  # Reuse the same image for efficiency
-    workdir: /usr/src/app  # Define working directory
-    copy:  # Copy your application code
-      - . .
+  - name: 'node:18-alpine'
+    args:
+      - run
+      - build
     entrypoint: npm
-    args: ['run', 'build']
-  # Use a smaller runtime image for deployment (optional)
-  - name: 'node:18-slim'  # Smaller image for deployment
-    workdir: /usr/src/app
-    copy:
-      - . .
+  - name: 'node:18-alpine'
     env:
-      - HOST=$_HOST # Accessing Cloud Build Trigger Variable
+      - HOST=$_HOST
       - PORT=$_PORT
       - TWILIO_AUTH_TOKEN=$_TWILIO_AUTH_TOKEN
       - TWILIO_ACCOUNT_SID=$_TWILIO_AACCOUNT_SID
-    args: ['npm', 'start']
+    args:
+      - npm
+      - start
+    entrypoint: npm
+options:
+  defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
