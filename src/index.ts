@@ -23,12 +23,14 @@ app.get('/', (_req: Request, res: Response) => {
 
 // webhook trigged by twillo when a message is sent to the phone number.
 app.post('/message', twilio.webhook(), (req: Request, res: Response) => {
+  console.log('requestdump:', req);
   const response = new MessagingResponse();
   response.message(
     `Hi! You just sent a message ${req.body.Body.length} characters long. This was sent from the express server.`,
   );
   res.set('Content-Type', 'text/xml');
   res.send(response.toString());
+  console.log('responseDUMP:', res);
 });
 
 app.listen(PORT, HOST, () => {
