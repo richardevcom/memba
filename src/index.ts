@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import twilio from 'twilio';
 import MessagingResponse from 'twilio/lib/twiml/MessagingResponse';
+import morgan from 'morgan';
 
 dotenv.config();
 const PORT = Number(process.env.PORT || 3000);
@@ -15,6 +16,7 @@ const app = express();
 app.use(helmet()); // adds important security headers to the response
 app.use(express.json()); // for parsing application/json
 app.disable('x-powered-by'); // disable the X-Powered-By header to reduce server fingerprint
+app.use(morgan('combined')); // log all requests
 
 // health check
 app.get('/', (_req: Request, res: Response) => {
@@ -23,14 +25,16 @@ app.get('/', (_req: Request, res: Response) => {
 
 // webhook trigged by twillo when a message is sent to the phone number.
 app.post('/message', twilio.webhook(), (req: Request, res: Response) => {
-  console.log('requestdump:', req);
+  console.log('requestdump:', {
+    body: JSON.stringify(req.body, null, 2),
+    headers: JSON.stringify(req.headers, null, 2),
+  });
   const response = new MessagingResponse();
   response.message(
     `Hi! You just sent a message ${req.body.Body.length} characters long. This was sent from the express server.`,
   );
   res.set('Content-Type', 'text/xml');
-  res.send(response.toString());
-  console.log('responseDUMP:', res);
+  return res.send(response.toString());
 });
 
 app.listen(PORT, HOST, () => {
