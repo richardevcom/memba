@@ -111,8 +111,10 @@ jobs:
 
       - name: deploy to cloud run.
         run: |
+          IMAGE_URL="docker.io/isitayush/rembo:${{ steps.meta.outputs.tags }}"
+          echo "deploying to Cloud Run with image $IMAGE_URL"
           gcloud run deploy rembo \
-            --image=docker.io/isitayush/rembo:${{ steps.meta.outputs.tags }} \
+            --image=$IMAGE_URL \
             --region=europe-west1 \
             --platform=managed \
             --allow-unauthenticated
