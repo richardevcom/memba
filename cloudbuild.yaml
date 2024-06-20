@@ -1,0 +1,15 @@
+steps:
+  - name: gcr.io/cloud-builders/npm
+    args:
+      - install
+  - name: gcr.io/cloud-builders/npm
+    args:
+      - run
+      - build
+    env:
+      - HOST=$_HOST
+      - PORT=$_PORT
+      - TWILIO_AUTH_TOKEN=$_TWILIO_AUTH_TOKEN
+      - TWILIO_ACCOUNT_SID=$_TWILIO_AACCOUNT_SID
+options:
+  logging: CLOUD_LOGGING_ONLY
