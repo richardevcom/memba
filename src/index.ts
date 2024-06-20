@@ -34,10 +34,6 @@ app.post(
     process.env.TWILIO_AUTH_TOKEN,
   ),
   (req: Request, res: Response) => {
-    console.log('requestdump:', {
-      body: JSON.stringify(req.body, null, 2),
-      headers: JSON.stringify(req.headers, null, 2),
-    });
     const response = new MessagingResponse();
     response.message(
       `Hi! You just sent a message ${req.body.Body.length} characters long. This was sent from the express server.`,
