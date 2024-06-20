@@ -8,7 +8,7 @@ steps:
     copy:  # Copy your application code
       - . .
     entrypoint: npm
-    cmd: ['run', 'build']
+    args: ['run', 'build']
   # Use a smaller runtime image for deployment (optional)
   - name: 'node:18-slim'  # Smaller image for deployment
     workdir: /usr/src/app
@@ -19,4 +19,4 @@ steps:
       - PORT=$_PORT
       - TWILIO_AUTH_TOKEN=$_TWILIO_AUTH_TOKEN
       - TWILIO_ACCOUNT_SID=$_TWILIO_AACCOUNT_SID
-    cmd: ['npm', 'start']
+    args: ['npm', 'start']
