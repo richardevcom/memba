@@ -91,6 +91,15 @@ jobs:
           push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }} # only push on master branch
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: save tags.
+        run: echo ${{ steps.meta.outputs.tags }} > tags.txt
+
+      - name: upload tags.
+        uses: actions/upload-artifact@v3
+        with:
+          name: image-tags
+          path: tags.txt
   deploy:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
@@ -98,6 +107,18 @@ jobs:
     steps:
       - name: checkout.
         uses: actions/checkout@v3
+
+      - name: download tags.
+        uses: actions/download-artifact@v3
+        with:
+          name: image-tags
+          path: .
+
+      - name: read tags
+        id: read-tags
+        run: |
+          TAG=$(cat tags.txt)
+          echo "TAG=$TAG" >> $GITHUB_ENV
 
       - name: auth with gcloud.
         uses: google-github-actions/auth@v1
@@ -111,10 +132,13 @@ jobs:
 
       - name: deploy to cloud run.
         run: |
-          IMAGE_URL="docker.io/isitayush/rembo:${{ steps.meta.outputs.tags }}"
+          IMAGE_URL="docker.io/isitayush/rembo:${{ env.tags }}"
           echo "deploying to Cloud Run with image $IMAGE_URL"
           gcloud run deploy rembo \
             --image=$IMAGE_URL \
             --region=europe-west1 \
             --platform=managed \
+            --set-env-vars TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }} \
+            --set-env-vars TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }} \
+            --port 3000 \
             --allow-unauthenticated
