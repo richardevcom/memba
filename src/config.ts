@@ -8,16 +8,11 @@ const config: Config = {
     port: Number(process.env.PORT || 3000),
     host: process.env.HOST || 'localhost',
   },
-  mysql: {
-    host: process.env.MYSQL_HOST!, // Use non-null assertion for required fields
-    db: process.env.MYSQL_DB!,
-    user: process.env.MYSQL_USER!,
-    pass: process.env.MYSQL_PASS!,
-  },
+  dburl: process.env.DATABASE_URL!,
   twilio: {
     authToken: process.env.TWILIO_AUTH_TOKEN!,
     accountSid: process.env.TWILIO_ACCOUNT_SID!,
-    endpoint: process.env.TWILIO_ENDPOINT || 'https://your-api-endpoint.com' // Replace with your API endpoint URL
+    endpoint: process.env.TWILIO_ENDPOINT || 'https://your-api-endpoint.com', // Replace with your API endpoint URL
   },
   vertex: {
     project: process.env.VERTEX_PROJECT || 'charged-mind-426813-t5',

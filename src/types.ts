@@ -1,10 +1,3 @@
-interface MysqlConfig {
-  host: string;
-  db: string;
-  user: string;
-  pass: string;
-}
-
 interface ServerConfig {
   port: number;
   host: string;
@@ -23,7 +16,7 @@ interface VertexConfig {
 }
 
 export interface Config {
-  mysql: MysqlConfig;
+  dburl: string;
   server: ServerConfig;
   twilio: TwilioConfig;
   vertex: VertexConfig;
@@ -31,10 +24,4 @@ export interface Config {
 
 export interface TwilioMessage {
   Body: string;
-}
-
-interface GenerativeModelOptions {
-  maxOutputTokens?: number;
-  temperature?: number;
-  topP?: number;
 }
