@@ -13,6 +13,7 @@ interface ServerConfig {
 interface TwilioConfig {
   authToken: string;
   accountSid: string;
+  endpoint: string;
 }
 
 interface VertexConfig {

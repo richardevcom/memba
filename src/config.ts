@@ -17,6 +17,7 @@ const config: Config = {
   twilio: {
     authToken: process.env.TWILIO_AUTH_TOKEN!,
     accountSid: process.env.TWILIO_ACCOUNT_SID!,
+    endpoint: process.env.TWILIO_ENDPOINT || 'https://your-api-endpoint.com' // Replace with your API endpoint URL
   },
   vertex: {
     project: process.env.VERTEX_PROJECT || 'charged-mind-426813-t5',
