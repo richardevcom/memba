@@ -13,3 +13,4 @@ steps:
       - TWILIO_ACCOUNT_SID=$_TWILIO_AACCOUNT_SID
 options:
   logging: CLOUD_LOGGING_ONLY
+  defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
