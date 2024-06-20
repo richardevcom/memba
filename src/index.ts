@@ -15,7 +15,7 @@ if (!process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_ACCOUNT_SID) {
 const app = express();
 app.use(helmet()); // adds important security headers to the response
 app.use(express.json()); // for parsing application/json
-app.use(express.urlencoded()); // for parsing application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.disable('x-powered-by'); // disable the X-Powered-By header to reduce server fingerprint
 app.use(morgan('combined')); // log all requests
 
@@ -27,7 +27,12 @@ app.get('/', (_req: Request, res: Response) => {
 // webhook trigged by twillo when a message is sent to the phone number.
 app.post(
   '/message',
-  twilio.webhook(process.env.TWILIO_AUTH_TOKEN),
+  twilio.webhook(
+    {
+      url: `https://rembo-4lewwrw27q-ew.a.run.app/message`,
+    },
+    process.env.TWILIO_AUTH_TOKEN,
+  ),
   (req: Request, res: Response) => {
     console.log('requestdump:', {
       body: JSON.stringify(req.body, null, 2),
@@ -37,8 +42,8 @@ app.post(
     response.message(
       `Hi! You just sent a message ${req.body.Body.length} characters long. This was sent from the express server.`,
     );
-    res.set('Content-Type', 'text/xml');
-    return res.send(response.toString());
+
+    res.type('text/xml').send(response.toString());
   },
 );
 
