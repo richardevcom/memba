@@ -6,7 +6,7 @@ import config from './config'; // Assuming config is simple JSON
 import morgan from 'morgan';
 import type { TwilioMessage } from './types';
 import twilioMiddleware from './twilio';
-import pool from './db';
+// import pool from './db';
 
 const app = express();
 
@@ -44,15 +44,15 @@ app.post(
 );
 
 app.get('/reminders', async (req, res) => {
-  try {
-    const connection = await pool.getConnection();
-    const [rows] = await connection.query('SELECT * FROM reminders');
-    connection.release();
-    res.json(rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Database error');
-  }
+  // try {
+  //   const connection = await pool.getConnection();
+  //   const [rows] = await connection.query('SELECT * FROM reminders');
+  //   connection.release();
+  //   res.json(rows);
+  // } catch (err) {
+  //   console.error(err);
+  //   res.status(500).send('Database error');
+  // }
 });
 
 app.listen(config.server.port, () => {

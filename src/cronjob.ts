@@ -1,24 +1,23 @@
 import https from 'https'; // For making HTTPS requests
-import pool from './db';
+// import pool from './db';
 import config from './config';
 
 async function checkAndSendReminders() {
-  try {
-    const connection = await pool.getConnection();
-    const now = new Date().toISOString().slice(0, 19).replace('T', ' '); // Format current datetime
-    const [rows] = await connection.query(
-      'SELECT * FROM reminders WHERE reminder_datetime = ?',
-      [now],
-    );
-    connection.release();
-
-    for (const reminder of rows) {
-      const reminderData = JSON.stringify(reminder);
-      await sendPostRequest(config.twilio.endpoint, reminderData);
-    }
-  } catch (err) {
-    console.error('Error checking reminders:', err);
-  }
+  //   try {
+  //     const connection = await pool.getConnection();
+  //     const now = new Date().toISOString().slice(0, 19).replace('T', ' '); // Format current datetime
+  //     const [rows] = await connection.query(
+  //       'SELECT * FROM reminders WHERE reminder_datetime = ?',
+  //       [now],
+  //     );
+  //     connection.release();
+  //     for (const reminder of rows) {
+  //       const reminderData = JSON.stringify(reminder);
+  //       await sendPostRequest(config.twilio.endpoint, reminderData);
+  //     }
+  //   } catch (err) {
+  //     console.error('Error checking reminders:', err);
+  //   }
 }
 
 async function sendPostRequest(url: string, data: string) {
