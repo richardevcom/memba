@@ -132,7 +132,7 @@ jobs:
 
       - name: deploy to cloud run.
         run: |
-          IMAGE_URL="docker.io/isitayush/rembo:${{ env.tags }}"
+          IMAGE_URL="docker.io/isitayush/rembo:${{ env.tag }}"
           echo "deploying to Cloud Run with image $IMAGE_URL"
           gcloud run deploy rembo \
             --image=$IMAGE_URL \
