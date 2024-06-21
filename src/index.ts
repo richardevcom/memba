@@ -3,7 +3,6 @@ import helmet from 'helmet';
 import MessagingResponse from 'twilio/lib/twiml/MessagingResponse';
 import generativeModel from './vertex';
 import morgan from 'morgan';
-import type { TwilioMessage } from './types';
 import twilio from 'twilio';
 import { z } from 'zod';
 import env from './env';
@@ -29,15 +28,28 @@ app.get('/', (_: Request, res: Response) => res.send('Ok'));
 
 app.post(
   '/message',
+  // temproray intercept middleware
+  (req: Request, res: Response, next: Function) => {
+    console.log(
+      `[rembo] pre-twilio-middleware req: ${JSON.stringify(req.body)}`,
+    );
+    const oldJson = res.json;
+    res.json = (body) => {
+      console.log(
+        `[rembo] post-twilio-middleware res: ${JSON.stringify(body)}`,
+      );
+      return oldJson.call(res, body);
+    };
+    next();
+  },
   twilio.webhook(
     {
       url: `https://rembo-4lewwrw27q-ew.a.run.app/message`,
+      authToken: env.TWILIO_AUTH_TOKEN,
     },
     env.TWILIO_AUTH_TOKEN,
   ),
-  async (req: Request<TwilioMessage>, res: Response) => {
-    const { Body } = req.body;
-
+  async (req: Request, res: Response) => {
     console.log(`[rembo] received sms message: ${JSON.stringify(req.body)}`);
 
     const response = new MessagingResponse();
@@ -45,7 +57,7 @@ app.post(
     parseloop: for (let i = 0; i < MAX_MESSAGE_RESOLVE_TRIES; ++i) {
       const geminiResult = (
         await generativeModel.generateContent({
-          contents: [{ role: 'user', parts: [{ text: Body }] }],
+          contents: [{ role: 'user', parts: [{ text: req.body.Body }] }],
         })
       )?.response?.candidates?.[0]?.content?.parts?.[0]?.text;
 
