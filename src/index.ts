@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import twilio from 'twilio';
 import { z } from 'zod';
 import env from './env';
+import { format } from 'date-fns';
 
 const MAX_MESSAGE_RESOLVE_TRIES = 5;
 const messageSchema = z.object({
@@ -51,9 +52,9 @@ app.post(
         const parsedMessage = messageSchema.safeParse(JSON.parse(geminiResult));
         if (parsedMessage.success) {
           didParse = true;
-          const date = new Date(parsedMessage.data.reminder_datetime);
+          let date = new Date(parsedMessage.data.reminder_datetime);
           response.message(
-            `A reminder for "${parsedMessage.data.reminder_text}" has been set for ${date.toLocaleString()}`,
+            `A reminder for "${parsedMessage.data.reminder_text}" has been set for ${format(date, 'PPPPpppp')}`,
           );
           break parseloop;
         }

@@ -26,6 +26,7 @@
   "dependencies": {
     "@google-cloud/vertexai": "^1.2.0",
     "@prisma/client": "5.15.1",
+    "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "helmet": "^7.1.0",
