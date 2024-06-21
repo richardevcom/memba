@@ -18,6 +18,7 @@ const app = express();
 
 app.use(helmet()); // Security and parsing
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms :body'),
 );
