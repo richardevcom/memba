@@ -46,7 +46,7 @@ app.post(
           contents: [{ role: 'user', parts: [{ text: req.body.Body }] }],
         })
       )?.response?.candidates?.[0]?.content?.parts?.[0]?.text;
-
+      console.log(`[rembo] gemini result ${i}: ${geminiResult}`);
       if (geminiResult) {
         const parsedMessage = messageSchema.safeParse(JSON.parse(geminiResult));
         if (parsedMessage.success) {

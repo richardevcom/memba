@@ -15,6 +15,8 @@ const instructions = `
   1. Extract date and time from reminder text.
   2. Parse the date and time together using a natural language format specifier (e.g., '%dth %B %Y %H:%M').
   3. Convert the parsed datetime object to ISO 8601 extended format (e.g., 'YYYY-MM-DDTHH:mm:ss.sssZ'). Strip reminder intro text (e.g. 'Remind me to'). Return only JSON.
+  4. Do not delimit the output JSON with anything.
+  5. Do not output anything else other than JSON.
 `;
 
 const generativeModel = vertexAi.preview.getGenerativeModel({
