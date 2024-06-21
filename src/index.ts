@@ -18,7 +18,9 @@ const app = express();
 
 app.use(helmet()); // Security and parsing
 app.use(express.json());
-app.use(morgan('combined'));
+app.use(
+  morgan(':method :url :status :res[content-length] - :response-time ms :body'),
+);
 app.disable('x-powered-by'); // Disable header, logging
 
 // Health check
@@ -56,11 +58,11 @@ app.post(
     if (!didParse) {
       response.message('Sorry, I could not understand your message.');
     }
-    console.log(`[rembo] sending sms response: ${response.toString()}`);
+    console.log(`[rembo] sending sms response: ${response.toString()} `);
     res.type('text/xml').send(response.toString());
   },
 );
 
 app.listen(config.server.port, () => {
-  console.log(`[rembo] server running on port ${config.server.port}`);
+  console.log(`[rembo] server running on port ${config.server.port} `);
 });
