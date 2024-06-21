@@ -1,21 +1,15 @@
 import express, { type Request, type Response } from 'express';
 import helmet from 'helmet';
 import MessagingResponse from 'twilio/lib/twiml/MessagingResponse';
-import generativeModel from './vertex';
 import morgan from 'morgan';
 import twilio from 'twilio';
-import { z } from 'zod';
 import env from './env';
 import { format } from 'date-fns';
-
-const MAX_MESSAGE_RESOLVE_TRIES = 5;
-const messageSchema = z.object({
-  reminder_text: z.string().min(1),
-  reminder_datetime: z.string().min(1),
-});
+import { getGeminiResponse } from './model';
 
 const app = express();
 
+// middlewares
 app.use(helmet()); // Security and parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -27,6 +21,7 @@ app.disable('x-powered-by'); // Disable header, logging
 // Health check
 app.get('/', (_: Request, res: Response) => res.send('Ok'));
 
+// POST /message - trigged by twilio webhook
 app.post(
   '/message',
   twilio.webhook(
@@ -38,34 +33,20 @@ app.post(
   ),
   async (req: Request, res: Response) => {
     console.log(`[rembo] received sms message: ${JSON.stringify(req.body)}`);
-
-    let didParse = false;
-    parseloop: for (let i = 0; i < MAX_MESSAGE_RESOLVE_TRIES; ++i) {
-      const geminiResult = (
-        await generativeModel.generateContent({
-          contents: [{ role: 'user', parts: [{ text: req.body.Body }] }],
-        })
-      )?.response?.candidates?.[0]?.content?.parts?.[0]?.text;
-      console.log(`[rembo] gemini result ${i}: ${geminiResult}`);
-      if (geminiResult) {
-        const parsedMessage = messageSchema.safeParse(JSON.parse(geminiResult));
-        if (parsedMessage.success) {
-          didParse = true;
-          const date = new Date(parsedMessage.data.reminder_datetime);
-          const response = new MessagingResponse();
-          response.message(
-            `A reminder for "${parsedMessage.data.reminder_text}" has been set for ${format(date, 'PPPPpppp')}`,
-          );
-          res.type('text/xml').send(response.toString());
-          break parseloop;
-        }
-      }
+    const geminiResponse = await getGeminiResponse(req.body.Body);
+    const twiml = new MessagingResponse();
+    if (geminiResponse) {
+      twiml.message(
+        `A reminder "${geminiResponse.reminder_text}" has been set for ${format(
+          new Date(geminiResponse.reminder_datetime),
+          'PPPPpppp',
+        )}`,
+      );
+    } else {
+      twiml.message('Sorry, I am having trouble understanding you.');
     }
-    if (!didParse) {
-      const response = new MessagingResponse();
-      response.message('Sorry, I could not understand your message.');
-      res.type('text/xml').send(response.toString());
-    }
+    console.log(`[rembo] sending sms message: ${twiml.toString()}`);
+    res.type('text/xml').send(twiml.toString());
   },
 );
 
