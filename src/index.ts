@@ -28,20 +28,6 @@ app.get('/', (_: Request, res: Response) => res.send('Ok'));
 
 app.post(
   '/message',
-  // temproray intercept middleware
-  (req: Request, res: Response, next: Function) => {
-    console.log(
-      `[rembo] pre-twilio-middleware req: ${JSON.stringify(req.body)}`,
-    );
-    const oldJson = res.json;
-    res.json = (body) => {
-      console.log(
-        `[rembo] post-twilio-middleware res: ${JSON.stringify(body)}`,
-      );
-      return oldJson.call(res, body);
-    };
-    next();
-  },
   twilio.webhook(
     {
       url: `https://rembo-4lewwrw27q-ew.a.run.app/message`,
