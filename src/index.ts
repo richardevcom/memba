@@ -30,6 +30,8 @@ app.post(
   async (req: Request<TwilioMessage>, res: Response) => {
     const { Body } = req.body;
 
+    console.log(`[rembo] received sms message: ${JSON.stringify(req.body)}`);
+
     const response = new MessagingResponse();
     let didParse = false;
     parseloop: for (let i = 0; i < MAX_MESSAGE_RESOLVE_TRIES; ++i) {
@@ -54,6 +56,7 @@ app.post(
     if (!didParse) {
       response.message('Sorry, I could not understand your message.');
     }
+    console.log(`[rembo] sending sms response: ${response.toString()}`);
     res.type('text/xml').send(response.toString());
   },
 );
