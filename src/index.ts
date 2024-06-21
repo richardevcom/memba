@@ -7,8 +7,11 @@ import env from './env';
 import { format } from 'date-fns';
 import { getGeminiResponse } from './model';
 import { db } from './db';
+import { ReminderScheduler } from './scheduler';
 
 const app = express();
+const scheduler = new ReminderScheduler();
+scheduler.start();
 
 // middlewares
 app.use(helmet()); // Security and parsing

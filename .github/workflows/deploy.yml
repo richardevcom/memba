@@ -96,6 +96,8 @@ jobs:
             --platform=managed \
             --set-env-vars TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }} \
             --set-env-vars TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }} \
+            --set-env-vars TWILIO_PHONE_NUMBER=${{ secrets.TWILIO_PHONE_NUMBER }} \
+            --set-env-vars VERTEX_MODEL=${{ secrets.VERTEX_MODEL }} \
             --set-env-vars GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }} \
             --set-env-vars GCP_REGION=${{ vars.GCP_REGION }} \
             --port ${{ vars.PORT }} \

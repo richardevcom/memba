@@ -8,8 +8,10 @@ const environmentSchema = z.object({
   HOST: z.string().default('localhost'),
   TWILIO_AUTH_TOKEN: z.string(),
   TWILIO_ACCOUNT_SID: z.string(),
-  GCP_PROJECT_ID: z.string().default('charged-mind-426813-t5'),
-  GCP_REGION: z.string().default('europe-west1'),
+  TWILIO_PHONE_NUMBER: z.string(),
+  DATABASE_URL: z.string(),
+  GCP_PROJECT_ID: z.string(),
+  GCP_REGION: z.string(),
   VERTEX_MODEL: z.string().default('gemini-1.5-flash-001'),
   NODE_ENV: z.string().default('production'),
 });
