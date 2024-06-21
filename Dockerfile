@@ -20,7 +20,7 @@ RUN pnpm build
 
 FROM setup AS prod
 COPY --from=build --chown=rembouser:rembouser /app/dist .
-COPY --from=build --chown=rembouser:rembouser /app/node_modules .
+COPY --from=build --chown=rembouser:rembouser /app/node_modules ./node_modules
 USER rembouser
 EXPOSE 3000
 ENV HOST=0.0.0.0 PORT=3000 NODE_ENV=production
