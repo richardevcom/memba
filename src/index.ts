@@ -6,6 +6,7 @@ import twilio from 'twilio';
 import env from './env';
 import { format } from 'date-fns';
 import { getGeminiResponse } from './model';
+import { db } from './db';
 
 const app = express();
 
@@ -35,15 +36,84 @@ app.post(
     console.log(`[rembo] received sms message: ${JSON.stringify(req.body)}`);
     const geminiResponse = await getGeminiResponse(req.body.Body);
     const twiml = new MessagingResponse();
+
     if (geminiResponse) {
-      twiml.message(
-        `A reminder "${geminiResponse.reminder_text}" has been set for ${format(
-          new Date(geminiResponse.reminder_datetime),
-          'PPPPpppp',
-        )}`,
-      );
+      const userPhone = req.body.From;
+      const reminderDate = new Date(geminiResponse.reminder_datetime);
+      const reminderText = geminiResponse.reminder_text;
+      const formattedDate = format(reminderDate, 'PPPPpppp');
+      try {
+        const user = await db.user.findUnique({
+          where: {
+            phone: userPhone,
+          },
+          select: {
+            id: true,
+            phone: true,
+            reminders: true,
+          },
+        });
+        if (user) {
+          const reminderAlreadyExists = user.reminders.find(
+            (reminder) =>
+              reminder.time === reminderDate && reminder.text === reminderText,
+          );
+          if (reminderAlreadyExists) {
+            twiml.message(
+              `A reminder for "${reminderText}" already exists for ${formattedDate}`,
+            );
+          } else {
+            await db.user.update({
+              where: {
+                id: user.id,
+              },
+              data: {
+                reminders: {
+                  create: {
+                    time: reminderDate,
+                    text: reminderText,
+                  },
+                },
+              },
+            });
+            twiml.message(
+              `A reminder for "${reminderText}" has been created for ${formattedDate}`,
+            );
+          }
+        } else {
+          await db.user.create({
+            data: {
+              phone: userPhone,
+              reminders: {
+                create: {
+                  time: reminderDate,
+                  text: reminderText,
+                },
+              },
+            },
+          });
+          twiml.message(
+            `A reminder for "${reminderText}" has been created for ${formattedDate}`,
+          );
+        }
+      } catch (error) {
+        console.error(
+          `[rembo] error creating user: ${JSON.stringify({
+            phone: userPhone,
+            reminderDate: reminderDate,
+            reminderText: reminderText,
+            geminiResponse: geminiResponse,
+            error: error,
+          })}`,
+        );
+        twiml.message(
+          'Sorry, I am having trouble understanding you. You can try again by rephrasing your request.',
+        );
+      }
     } else {
-      twiml.message('Sorry, I am having trouble understanding you.');
+      twiml.message(
+        'Sorry, I am having trouble understanding you. You can try again by rephrasing your request.',
+      );
     }
     console.log(`[rembo] sending sms message: ${twiml.toString()}`);
     res.type('text/xml').send(twiml.toString());
