@@ -39,7 +39,6 @@ app.post(
   async (req: Request, res: Response) => {
     console.log(`[rembo] received sms message: ${JSON.stringify(req.body)}`);
 
-    const response = new MessagingResponse();
     let didParse = false;
     parseloop: for (let i = 0; i < MAX_MESSAGE_RESOLVE_TRIES; ++i) {
       const geminiResult = (
@@ -52,19 +51,21 @@ app.post(
         const parsedMessage = messageSchema.safeParse(JSON.parse(geminiResult));
         if (parsedMessage.success) {
           didParse = true;
-          let date = new Date(parsedMessage.data.reminder_datetime);
+          const date = new Date(parsedMessage.data.reminder_datetime);
+          const response = new MessagingResponse();
           response.message(
             `A reminder for "${parsedMessage.data.reminder_text}" has been set for ${format(date, 'PPPPpppp')}`,
           );
+          res.type('text/xml').send(response.toString());
           break parseloop;
         }
       }
     }
     if (!didParse) {
+      const response = new MessagingResponse();
       response.message('Sorry, I could not understand your message.');
+      res.type('text/xml').send(response.toString());
     }
-    console.log(`[rembo] sending sms response: ${response.toString()} `);
-    res.type('text/xml').send(response.toString());
   },
 );
 
