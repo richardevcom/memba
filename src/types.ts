@@ -16,7 +16,6 @@ interface VertexConfig {
 }
 
 export interface Config {
-  dburl: string;
   server: ServerConfig;
   twilio: TwilioConfig;
   vertex: VertexConfig;

@@ -6,7 +6,6 @@ import config from './config'; // Assuming config is simple JSON
 import morgan from 'morgan';
 import type { TwilioMessage } from './types';
 import twilioMiddleware from './twilio';
-// import pool from './db';
 
 const app = express();
 
@@ -42,18 +41,6 @@ app.post(
     res.type('text/xml').send(response.toString());
   },
 );
-
-app.get('/reminders', async (req, res) => {
-  // try {
-  //   const connection = await pool.getConnection();
-  //   const [rows] = await connection.query('SELECT * FROM reminders');
-  //   connection.release();
-  //   res.json(rows);
-  // } catch (err) {
-  //   console.error(err);
-  //   res.status(500).send('Database error');
-  // }
-});
 
 app.listen(config.server.port, () => {
   console.log(`[rembo] server running on port ${config.server.port}`);

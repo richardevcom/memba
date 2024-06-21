@@ -8,7 +8,6 @@ const config: Config = {
     port: Number(process.env.PORT || 3000),
     host: process.env.HOST || 'localhost',
   },
-  dburl: process.env.DATABASE_URL!,
   twilio: {
     authToken: process.env.TWILIO_AUTH_TOKEN!,
     accountSid: process.env.TWILIO_ACCOUNT_SID!,
