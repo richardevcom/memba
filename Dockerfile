@@ -22,6 +22,7 @@ FROM setup AS prod
 COPY --from=build --chown=rembouser:rembouser /app/dist .
 COPY --from=build --chown=rembouser:rembouser /app/node_modules ./node_modules
 USER rembouser
+HEALTHCHECK --interval=60s --retries=5 CMD curl --fail http://localhost/ || exit 1
 EXPOSE 3000
 ENV HOST=0.0.0.0 PORT=3000 NODE_ENV=production
 CMD ["dumb-init","node","index.js"]
