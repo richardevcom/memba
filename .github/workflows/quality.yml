@@ -33,6 +33,9 @@ jobs:
       - name: setup.
         uses: ./actions/setup
 
+      - name: generate types.
+        run: pnpm db:generate
+
       - name: typecheck.
         run: pnpm typecheck
   lint:
@@ -44,6 +47,9 @@ jobs:
       - name: setup.
         uses: ./actions/setup
 
+      - name: generate types.
+        run: pnpm db:generate
+
       - name: lint.
         run: pnpm lint
   build:
@@ -54,6 +60,9 @@ jobs:
 
       - name: setup.
         uses: ./actions/setup
+
+      - name: generate types.
+        run: pnpm db:generate
 
       - name: build.
         run: pnpm build

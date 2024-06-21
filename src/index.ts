@@ -6,16 +6,20 @@ import config from './config'; // Assuming config is simple JSON
 import morgan from 'morgan';
 import type { TwilioMessage } from './types';
 import twilioMiddleware from './twilio';
+import { z } from 'zod';
+
+const MAX_MESSAGE_RESOLVE_TRIES = 5;
+const messageSchema = z.object({
+  reminder_text: z.string().min(1),
+  reminder_datetime: z.string().min(1),
+});
 
 const app = express();
 
-// Security and parsing
-app.use(helmet());
+app.use(helmet()); // Security and parsing
 app.use(express.json());
-
-// Disable header, logging
-app.disable('x-powered-by');
 app.use(morgan('combined'));
+app.disable('x-powered-by'); // Disable header, logging
 
 // Health check
 app.get('/', (_: Request, res: Response) => res.send('Ok'));
@@ -26,18 +30,30 @@ app.post(
   async (req: Request<TwilioMessage>, res: Response) => {
     const { Body } = req.body;
 
-    console.log(`[rembo] received sms message: ${Body}`);
-
-    const geminiResult = await generativeModel.generateContent({
-      contents: [{ role: 'user', parts: [{ text: Body }] }],
-    });
-
-    console.log(
-      `[rembo] gemini response: ${JSON.stringify(geminiResult.response)}`,
-    );
-
     const response = new MessagingResponse();
-    response.message(`Hi! You sent a ${Body.length}-character message.`);
+    let didParse = false;
+    parseloop: for (let i = 0; i < MAX_MESSAGE_RESOLVE_TRIES; ++i) {
+      const geminiResult = (
+        await generativeModel.generateContent({
+          contents: [{ role: 'user', parts: [{ text: Body }] }],
+        })
+      )?.response?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (geminiResult) {
+        const parsedMessage = messageSchema.safeParse(JSON.parse(geminiResult));
+        if (parsedMessage.success) {
+          didParse = true;
+          const date = new Date(parsedMessage.data.reminder_datetime);
+          response.message(
+            `A reminder for "${parsedMessage.data.reminder_text}" has been set for ${date.toLocaleString()}`,
+          );
+          break parseloop;
+        }
+      }
+    }
+    if (!didParse) {
+      response.message('Sorry, I could not understand your message.');
+    }
     res.type('text/xml').send(response.toString());
   },
 );
