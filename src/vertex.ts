@@ -3,11 +3,11 @@ import {
   HarmBlockThreshold,
   HarmCategory,
 } from '@google-cloud/vertexai';
-import config from './config'; // Import the configuration
+import env from './env';
 
 const vertexAi = new VertexAI({
-  project: config.vertex.project,
-  location: config.vertex.location,
+  project: env.GCP_PROJECT_ID,
+  location: env.GCP_REGION,
 });
 
 const instructions = `
@@ -18,7 +18,7 @@ const instructions = `
 `;
 
 const generativeModel = vertexAi.preview.getGenerativeModel({
-  model: config.vertex.model,
+  model: env.VERTEX_MODEL,
   generationConfig: {
     maxOutputTokens: 1000, // Optional, can be passed in options
     temperature: 1, // Optional, can be passed in options

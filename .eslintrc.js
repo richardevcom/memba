@@ -25,6 +25,7 @@ module.exports = {
     // They are organized into groups based on what type of warning they are.
     // ---
     // Potential Bugs
+    '@typescript-eslint/no-namespace': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-misused-promises': 'off',

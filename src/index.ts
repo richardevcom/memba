@@ -2,11 +2,11 @@ import express, { type Request, type Response } from 'express';
 import helmet from 'helmet';
 import MessagingResponse from 'twilio/lib/twiml/MessagingResponse';
 import generativeModel from './vertex';
-import config from './config'; // Assuming config is simple JSON
 import morgan from 'morgan';
 import type { TwilioMessage } from './types';
-import twilioMiddleware from './twilio';
+import twilio from 'twilio';
 import { z } from 'zod';
+import env from './env';
 
 const MAX_MESSAGE_RESOLVE_TRIES = 5;
 const messageSchema = z.object({
@@ -28,7 +28,12 @@ app.get('/', (_: Request, res: Response) => res.send('Ok'));
 
 app.post(
   '/message',
-  twilioMiddleware,
+  twilio.webhook(
+    {
+      url: `https://rembo-4lewwrw27q-ew.a.run.app/message`,
+    },
+    env.TWILIO_AUTH_TOKEN,
+  ),
   async (req: Request<TwilioMessage>, res: Response) => {
     const { Body } = req.body;
 
@@ -63,6 +68,6 @@ app.post(
   },
 );
 
-app.listen(config.server.port, () => {
-  console.log(`[rembo] server running on port ${config.server.port} `);
+app.listen(env.PORT, () => {
+  console.log(`[rembo] server running on port ${env.HOST}:${env.PORT}`);
 });
