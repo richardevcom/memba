@@ -73,4 +73,4 @@ This plan outlines the development process for a reminder system using Twilio, D
 
 - Thoroughly test the system with various scenarios:
   - Send test SMS messages with different reminder phrases.
-  - Make test voice calls with
+  - Make test voice calls with...
