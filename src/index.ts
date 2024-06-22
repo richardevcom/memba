@@ -37,7 +37,10 @@ app.post(
   ),
   async (req: Request, res: Response) => {
     console.log(`[rembo] received sms message: ${JSON.stringify(req.body)}`);
-    const geminiResponse = await getGeminiResponse(req.body.Body);
+    const geminiResponse = await getGeminiResponse(
+      req.body.Body,
+      req.body.From,
+    );
     const twiml = new MessagingResponse();
 
     if (geminiResponse) {
