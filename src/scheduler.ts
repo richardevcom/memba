@@ -4,7 +4,7 @@ import twilio from 'twilio';
 import env from './env';
 
 /** The difference in milliseconds between each schedule */
-const SCHEDULE_DIFFERENCE_MS = 1 * 60 * 60 * 1000; // 1 hour
+const SCHEDULE_DIFFERENCE_MS = 1 * 60 * 1000; // 1 minute
 
 type Reminder = {
   user: {
@@ -30,6 +30,9 @@ export class ReminderScheduler {
     console.log(
       `[rembo] starting reminder scheduler with ${SCHEDULE_DIFFERENCE_MS}ms difference`,
     );
+    (async () => {
+      await this.findAndScheduleReminders();
+    })();
     setInterval(this.findAndScheduleReminders, SCHEDULE_DIFFERENCE_MS);
   }
 
