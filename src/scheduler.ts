@@ -35,20 +35,21 @@ export class ReminderScheduler {
     console.log('[rembo] firing reminder scheduler');
     const now = new Date();
     const nowPlusDiff = addMilliseconds(now, SCHEDULE_DIFFERENCE_MS);
+    const nowPlusDiff2 = addMilliseconds(now, 2 * SCHEDULE_DIFFERENCE_MS);
     console.log(
-      `[rembo] checking messages between "${now.toUTCString()}" and "${nowPlusDiff.toUTCString()}"`,
+      `[rembo] checking messages between "${nowPlusDiff.toUTCString()}" and "${nowPlusDiff2.toUTCString()}"`,
     );
     const reminders: Reminder[] = await db.reminder.findMany({
       where: {
         AND: [
           {
             time: {
-              gte: now, // now
+              gte: nowPlusDiff, // now + 1 minute
             },
           },
           {
             time: {
-              lte: nowPlusDiff, // now + 1 minute
+              lte: nowPlusDiff2, // now + 2 minute
             },
           },
         ],
@@ -74,11 +75,15 @@ export class ReminderScheduler {
 function scheduleReminder(reminder: Reminder, now: Date) {
   setTimeout(
     async () => {
-      await client.messages.create({
+      const res = await client.messages.create({
         body: reminder.text,
         from: env.TWILIO_PHONE_NUMBER,
         to: reminder.user.phone,
       });
+      console.log(JSON.stringify(res, null, 2));
+      console.log(
+        `[rembo] sent reminder ${reminder.id} to ${reminder.user.phone}`,
+      );
     },
     differenceInMilliseconds(reminder.time, now),
   );
