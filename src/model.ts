@@ -63,6 +63,7 @@ export async function getGeminiResponse(
 ): Promise<ConvertedMessage | null> {
   let unparsedJson = null;
   const message = `${new Date().toISOString()} | ${userPhone} |  ${userMessage}`;
+  console.log(`[rembo] sending gemini message: ${message}`);
 
   // request gemini
   gemini: for (let i = 0; i < MAX_MESSAGE_RESOLVE_TRIES; ++i) {
@@ -71,7 +72,7 @@ export async function getGeminiResponse(
         contents: [{ role: 'user', parts: [{ text: message }] }],
       })
     )?.response?.candidates?.[0]?.content?.parts?.[0]?.text;
-    console.log(`[rembo] gemini result ${i}: ${geminiResult}`);
+    console.log(`[rembo] recieved gemini result ${i}: ${geminiResult}`);
     if (geminiResult) {
       unparsedJson = geminiResult;
       break gemini;
