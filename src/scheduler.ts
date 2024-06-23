@@ -40,8 +40,9 @@ export class ReminderScheduler {
   async findAndScheduleReminders() {
     console.log('[rembo] firing reminder scheduler');
     const now = new Date();
+    const nowPlusDiff = addMilliseconds(now, SCHEDULE_DIFFERENCE_MS);
     console.log(
-      `[rembo] checking messages between "${now.toISOString()}" and "${addMilliseconds(now, SCHEDULE_DIFFERENCE_MS).toISOString()}"`,
+      `[rembo] checking messages between "${now.toUTCString()}" and "${nowPlusDiff.toUTCString()}"`,
     );
     const reminders: Reminder[] = await db.reminder.findMany({
       where: {
@@ -53,7 +54,7 @@ export class ReminderScheduler {
           },
           {
             time: {
-              lte: addMilliseconds(now, SCHEDULE_DIFFERENCE_MS), // now + 1 hour
+              lte: nowPlusDiff, // now + 1 minute
             },
           },
         ],
