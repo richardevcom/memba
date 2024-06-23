@@ -73,6 +73,10 @@ async function findAndScheduleReminders() {
 
 /** Schedules a reminder to be sent */
 function scheduleReminder(reminder: Reminder, now: Date) {
+  const firingTime = differenceInMilliseconds(reminder.time, now);
+  console.log(
+    `[rembo] scheduling reminder ${reminder.text} in ${firingTime / 1000}s`,
+  );
   setTimeout(
     async () => {
       const res = await client.messages.create({
@@ -80,9 +84,9 @@ function scheduleReminder(reminder: Reminder, now: Date) {
         from: env.TWILIO_PHONE_NUMBER,
         to: reminder.user.phone,
       });
-      console.log(JSON.stringify(res, null, 2));
+      console.log(`Output: ${JSON.stringify(res.body, null, 2)}`);
       console.log(
-        `[rembo] sent reminder ${reminder.id} to ${reminder.user.phone}`,
+        `[rembo] tried to reminder ${reminder.id} to ${reminder.user.phone}`,
       );
     },
     differenceInMilliseconds(reminder.time, now),
