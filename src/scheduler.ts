@@ -5,7 +5,6 @@ import env from './env';
 
 /** The difference in milliseconds between each schedule */
 const SCHEDULE_DIFFERENCE_MS = 1 * 60 * 1000; // 1 minute
-const client = twilio(env.TWILIO_ACCOUNT_SID, env.TWILIO_AUTH_TOKEN);
 
 type Reminder = {
   user: {
@@ -17,7 +16,11 @@ type Reminder = {
 };
 
 export class ReminderScheduler {
-  constructor() {}
+  client: twilio.Twilio;
+
+  constructor() {
+    this.client = twilio(env.TWILIO_ACCOUNT_SID, env.TWILIO_AUTH_TOKEN);
+  }
 
   /** start the reminder scheduler */
   public start() {
@@ -27,7 +30,10 @@ export class ReminderScheduler {
     (async () => {
       await this.findAndScheduleReminders();
     })();
-    setInterval(this.findAndScheduleReminders, SCHEDULE_DIFFERENCE_MS);
+    setInterval(
+      this.findAndScheduleReminders.bind(this),
+      SCHEDULE_DIFFERENCE_MS,
+    );
   }
 
   /** find and schedule reminders */
@@ -37,7 +43,7 @@ export class ReminderScheduler {
     const nowPlusDiff = addMilliseconds(now, SCHEDULE_DIFFERENCE_MS);
     const nowPlusDiff2 = addMilliseconds(now, 2 * SCHEDULE_DIFFERENCE_MS);
     console.log(
-      `[rembo] checking messages between "${nowPlusDiff.toUTCString()}" and "${nowPlusDiff2.toUTCString()}"`,
+      `[rembo] @"${now.toUTCString()}" checking messages between "${nowPlusDiff.toUTCString()}" and "${nowPlusDiff2.toUTCString()}"`,
     );
     const reminders: Reminder[] = await db.reminder.findMany({
       where: {
@@ -67,24 +73,25 @@ export class ReminderScheduler {
     });
     console.log(`[rembo] found  ${reminders.length} reminders`);
     reminders.forEach((reminder) => {
-      scheduleReminder(reminder, now);
+      this.scheduleReminder(reminder, now);
     });
   }
-}
 
-function scheduleReminder(reminder: Reminder, now: Date) {
-  setTimeout(
-    async () => {
-      const res = await client.messages.create({
-        body: reminder.text,
-        from: env.TWILIO_PHONE_NUMBER,
-        to: reminder.user.phone,
-      });
-      console.log(JSON.stringify(res, null, 2));
-      console.log(
-        `[rembo] sent reminder ${reminder.id} to ${reminder.user.phone}`,
-      );
-    },
-    differenceInMilliseconds(reminder.time, now),
-  );
+  /** schedule a fire a reminder */
+  scheduleReminder(reminder: Reminder, now: Date) {
+    setTimeout(
+      async () => {
+        const res = await this.client.messages.create({
+          body: reminder.text,
+          from: env.TWILIO_PHONE_NUMBER,
+          to: reminder.user.phone,
+        });
+        console.log(JSON.stringify(res, null, 2));
+        console.log(
+          `[rembo] sent reminder ${reminder.id} to ${reminder.user.phone}`,
+        );
+      },
+      differenceInMilliseconds(reminder.time, now),
+    );
+  }
 }
