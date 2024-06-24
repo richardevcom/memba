@@ -60,9 +60,7 @@ export async function getGeminiResponse(
   userMessage: string,
   userPhone: string,
 ): Promise<ConvertedMessage | null> {
-  let unparsedJson = null;
-  const message = `${userMessage}`;
-  console.log(`[rembo] sending gemini message: ${message}`);
+  const now = new Date();
 
   // get generative model
   const generativeModel = vertexAi.preview.getGenerativeModel({
@@ -97,26 +95,26 @@ export async function getGeminiResponse(
   });
 
   // request gemini
-  gemini: for (let i = 0; i < MAX_MESSAGE_RESOLVE_TRIES; ++i) {
+  for (let i = 0; i < MAX_MESSAGE_RESOLVE_TRIES; ++i) {
+    console.log(`[rembo] sending gemini message attempt ${i}: ${userMessage}`);
     const geminiResult = (
       await generativeModel.generateContent({
-        contents: [{ role: 'user', parts: [{ text: message }] }],
+        contents: [{ role: 'user', parts: [{ text: userMessage }] }],
       })
     )?.response?.candidates?.[0]?.content?.parts?.[0]?.text;
-    console.log(`[rembo] recieved gemini result ${i}: ${geminiResult}`);
+    console.log(`[rembo] recieved gemini result attempt ${i}: ${geminiResult}`);
     if (geminiResult) {
-      unparsedJson = geminiResult;
-      break gemini;
-    }
-  }
-
-  // parse response if available
-  if (unparsedJson) {
-    const parsedMessage = convertedMessageSchema.safeParse(
-      JSON.parse(unparsedJson),
-    );
-    if (parsedMessage.success) {
-      return parsedMessage.data;
+      const parsedMessage = convertedMessageSchema.safeParse(
+        JSON.parse(geminiResult),
+      );
+      if (parsedMessage.success) {
+        const reminderDate = new Date(parsedMessage.data.reminder_datetime);
+        if (reminderDate < now) {
+          continue;
+        } else {
+          return parsedMessage.data;
+        }
+      }
     }
   }
 

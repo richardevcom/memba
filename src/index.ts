@@ -4,7 +4,7 @@ import MessagingResponse from 'twilio/lib/twiml/MessagingResponse';
 import morgan from 'morgan';
 import twilio from 'twilio';
 import env from './env';
-import { format } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { getGeminiResponse } from './model';
 import { db } from './db';
 import { startScheduler } from './scheduler';
@@ -61,18 +61,20 @@ app.post(
       return res.type('text/xml').send(twiml.toString());
     }
 
-    const geminiResponse = await getGeminiResponse(
-      req.body.Body,
-      req.body.From,
-    );
+    // process message
     const twiml = new MessagingResponse();
-
-    if (geminiResponse) {
-      const userPhone = req.body.From;
-      const reminderDate = new Date(geminiResponse.reminder_datetime);
-      const reminderText = geminiResponse.reminder_text;
-      const formattedDate = format(reminderDate, 'PPPPpppp');
-      try {
+    try {
+      const geminiResponse = await getGeminiResponse(
+        req.body.Body,
+        req.body.From,
+      );
+      if (geminiResponse) {
+        const userPhone = req.body.From;
+        const reminderDate = new Date(geminiResponse.reminder_datetime);
+        const reminderText = geminiResponse.reminder_text;
+        const formattedDate = formatDistanceToNow(reminderDate, {
+          addSuffix: true,
+        });
         const user = await db.user.findUnique({
           where: {
             phone: userPhone,
@@ -90,7 +92,7 @@ app.post(
           );
           if (reminderAlreadyExists) {
             twiml.message(
-              `A reminder for "${reminderText}" already exists for ${formattedDate}`,
+              `A reminder for "${reminderText}" already exists with that date and message.`,
             );
           } else {
             await db.user.update({
@@ -107,7 +109,7 @@ app.post(
               },
             });
             twiml.message(
-              `A reminder for "${reminderText}" has been created for ${formattedDate}`,
+              `A reminder for "${reminderText}" has been created. It'll occur ${formattedDate}.`,
             );
           }
         } else {
@@ -126,21 +128,13 @@ app.post(
             `A reminder for "${reminderText}" has been created for ${formattedDate}`,
           );
         }
-      } catch (error) {
-        console.error(
-          `[rembo] error creating user: ${JSON.stringify({
-            phone: userPhone,
-            reminderDate: reminderDate,
-            reminderText: reminderText,
-            geminiResponse: geminiResponse,
-            error: error,
-          })}`,
-        );
-        twiml.message(
-          'Sorry, I am having trouble understanding you. You can try again by rephrasing your request.',
-        );
+      } else {
+        throw new Error('Gemini response is null or undefined.');
       }
-    } else {
+    } catch (e) {
+      console.log(
+        `[rembo] error processing message: ${JSON.stringify(e, null, 2)}`,
+      );
       twiml.message(
         'Sorry, I am having trouble understanding you. You can try again by rephrasing your request.',
       );

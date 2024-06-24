@@ -29,27 +29,26 @@ export function startScheduler() {
 
 /** Finds and schedules reminders */
 async function findAndScheduleReminders() {
-  console.log('[rembo] firing reminder scheduler');
   const now = new Date();
-  const nowPlusDifference = addMilliseconds(now, SCHEDULE_DIFFERENCE_MS);
-  const nowPlusTwiceDifference = addMilliseconds(
-    now,
-    2 * SCHEDULE_DIFFERENCE_MS,
-  );
+
+  // the window of time to check for reminders is only 1 minute long.
+  const windowStart = addMilliseconds(now, SCHEDULE_DIFFERENCE_MS);
+  const windowEnd = addMilliseconds(now, SCHEDULE_DIFFERENCE_MS + 60 * 1000);
+
   console.log(
-    `[rembo] @"${now.toUTCString()}" checking messages between "${nowPlusDifference.toUTCString()}" and "${nowPlusTwiceDifference.toUTCString()}"`,
+    `[rembo] @"${now.toUTCString()}" checking messages between "${windowStart.toUTCString()}" and "${windowEnd.toUTCString()}"`,
   );
   const reminders: Reminder[] = await db.reminder.findMany({
     where: {
       AND: [
         {
           time: {
-            gte: nowPlusDifference, // now + 1 minute
+            gte: windowStart,
           },
         },
         {
           time: {
-            lte: nowPlusTwiceDifference, // now + 2 minute
+            lte: windowEnd,
           },
         },
       ],
@@ -65,6 +64,7 @@ async function findAndScheduleReminders() {
       },
     },
   });
+
   console.log(`[rembo] found  ${reminders.length} reminders`);
   reminders.forEach((reminder) => {
     scheduleReminder(reminder, now);
@@ -73,21 +73,48 @@ async function findAndScheduleReminders() {
 
 /** Schedules a reminder to be sent */
 function scheduleReminder(reminder: Reminder, now: Date) {
+  if (reminder.time < now) {
+    console.log(
+      `[rembo] reminder ${reminder.id} is in the past, skipping scheduling`,
+    );
+    return;
+  }
+
   const firingTime = differenceInMilliseconds(reminder.time, now);
+
   console.log(
     `[rembo] scheduling reminder ${reminder.text} in ${firingTime / 1000}s`,
   );
   setTimeout(
     async () => {
-      const res = await client.messages.create({
-        body: reminder.text,
-        from: env.TWILIO_PHONE_NUMBER,
-        to: reminder.user.phone,
-      });
-      console.log(`Output: ${JSON.stringify(res.body, null, 2)}`);
-      console.log(
-        `[rembo] tried to reminder ${reminder.id} to ${reminder.user.phone}`,
-      );
+      try {
+        const res = await client.messages.create({
+          body: reminder.text,
+          from: env.TWILIO_PHONE_NUMBER,
+          to: reminder.user.phone,
+        });
+        console.log(
+          `[rembo] sent sms from scheduler: ${JSON.stringify(
+            {
+              responseBody: res.body,
+              reminder: reminder,
+            },
+            null,
+            2,
+          )}`,
+        );
+      } catch (e) {
+        console.log(
+          `[rembo] error sending sms from scheduler: ${JSON.stringify(
+            {
+              error: e,
+              reminder: reminder,
+            },
+            null,
+            2,
+          )}`,
+        );
+      }
     },
     differenceInMilliseconds(reminder.time, now),
   );
