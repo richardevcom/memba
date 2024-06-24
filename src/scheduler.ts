@@ -10,6 +10,7 @@ type Reminder = {
   id: string;
   text: string;
   time: Date;
+  sent: boolean;
 };
 
 /** The difference in milliseconds between each schedule */
@@ -57,17 +58,14 @@ async function findAndScheduleReminders() {
 
   console.log(`[rembo] found  ${reminders.length} reminders`);
   reminders.forEach((reminder) => {
-    // scheduleReminder(reminder, now);
-    console.log(`[rembo] ${reminder}`);
+    if (reminder.time <= now) scheduleReminder(reminder, now);
   });
 }
 
 /** Schedules a reminder to be sent */
 function scheduleReminder(reminder: Reminder, now: Date) {
-  if (reminder.time < now) {
-    console.log(
-      `[rembo] reminder ${reminder.id} is in the past, skipping scheduling`,
-    );
+  if (reminder.sent === true) {
+    console.log(`[rembo] reminder has been already sent, skipping scheduling`);
     return;
   }
 
