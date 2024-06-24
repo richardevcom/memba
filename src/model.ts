@@ -13,7 +13,7 @@ ${new Date().toUTCString()}
 ### Input
 <phone_number_string>: <reminder_string>
 ### Output
-Unformatted JSON string (no delimiters) in the format: {'reminder_text': "<text>", 'reminder_datetime': "<Unix timestamp ISO format>"}.
+Unformatted JSON string (no delimiters) in the format: {"reminder_text": "<text>", "reminder_datetime": "<Unix timestamp ISO format>"}.
   - <text>: Extracted reminder text (without "Remind me to..." or phone number).
   - <Unix timestamp ISO format>: Parsed reminder date and time as Unix timestamp with timezone information (e.g., "2024-06-25T00:00:00+03:00").
 ### Processing
@@ -36,7 +36,7 @@ Unformatted JSON string (no delimiters) in the format: {'reminder_text': "<text>
 1. The input message format is "<phone Number>: <reminder string>" and the output is JSON adjusted for US Eastern Time (GMT-4)
   since the phone number is from the US.
   - Input: "+1464738291: Call Mom tomorrow at 9:00 AM"
-  - Output: {'reminder_text': "Call Mom", 'reminder_datetime': "2024-06-25T09:00:00-04:00"}
+  - Output: {"reminder_text": "Call Mom", "reminder_datetime": "2024-06-25T09:00:00-04:00"}
 `;
 
 // gemini response
