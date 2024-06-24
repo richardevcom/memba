@@ -31,6 +31,7 @@ model Reminder {
   // fields
   text String
   time DateTime
+  sent Boolean
 
   // relations
   user   User   @relation(fields: [userId], references: [id])
