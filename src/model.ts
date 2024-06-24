@@ -8,7 +8,7 @@ import { z } from 'zod';
 
 const MAX_MESSAGE_RESOLVE_TRIES = 3;
 const SYSTEM_PROMPT = `
-### Current Date (ISO)
+### Current Date Time (ISO)
 ${new Date().toISOString()}
 ### Input
 <reminder_string>
@@ -20,22 +20,16 @@ Unformatted JSON string (no delimiters) in the format: {"reminder_text": "<text>
 1. Parse <reminder_text>:
   - Remove any introduction ("Remind me to...", "Please...") and phone number from the reminder string.
 2. Parse <reminder_datetime>:
-  - If no date is provided, set it to today's date from the above current date.
-  - If no year is provided, set it to the current year from the above current date.
-  - If no time is provided, set it to one minute from the above current date.
+  - set your default timezone to GMT+2 for reminder_datetime
+ - if phone number is provided, use its country code to set timezone for reminder_datetime (for example +371 sets timezone to GMT+2 Latvia time)- If no date is provided, set it to today's date from the above current date.- If no year is provided, set it to the current year from the above current date.
+  - If no time is provided, set it to one minute from the above current date & time.
   - If the reminder string includes abstract time definitions like "tomorrow" or "next week,"
     adjust the date accordingly (e.g., "tomorrow" adds one day, "next week" adds seven days).
   - The date and time you parse should always be in future relative to the above current date.
-  - The timezone will always be +0:00 in the ISO format.
 3. Error handling:
   - If no reminder text or date/time information can be extracted, return an empty JSON string {}.
   - If any errors occur during processing, return an empty JSON string {}.
 4. Make sure the JSON is parseable, contains the required fields and use double quotes for string keys and string values.
-### Example
-1. The input message format is "<reminder_string>" and the output is parseable JSON.
-  - Current Date (ISO): "2024-06-24T16:33:08.888Z"
-  - Input: "Call Mom tomorrow at 9:00 AM"
-  - Output: {"reminder_text": "Call Mom", "reminder_datetime": "2024-06-25T09:00:00.000Z"}
 `;
 
 // gemini response
