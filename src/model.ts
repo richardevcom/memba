@@ -32,6 +32,7 @@ Unformatted JSON string (no delimiters) in the format: {"reminder_text": "<text>
 5. Error handling:
   - If no reminder text or date/time information can be extracted, return an empty JSON string {}.
   - If any errors occur during processing, return an empty JSON string {}.
+6. Make sure the JSON is parseable and contains the required fields.
 ### Example
 1. The input message format is "<phone Number>: <reminder string>" and the output is JSON adjusted for US Eastern Time (GMT-4)
   since the phone number is from the US.
