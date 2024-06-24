@@ -4,7 +4,6 @@
   "description": "",
   "keywords": [],
   "license": "ISC",
-  "author": "",
   "scripts": {
     "typecheck": "tsc --noEmit",
     "format": "prettier . --check --cache --cache-location='node_modules/.cache/.prettiercache'",
@@ -47,5 +46,12 @@
     "prettier": "^3.0.3",
     "prettier-plugin-packagejson": "^2.4.3",
     "typescript": "^5.4.5"
-  }
+  },
+  "contributors": [
+    {
+      "name": "Ayush",
+      "email": "ayush.keshav2004@gmail.com",
+      "url": "https://github.com/is-it-ayush"
+    }
+  ],
 }
