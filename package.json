@@ -1,6 +1,6 @@
 {
   "name": "memba",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "SMS reminders for elderly using Twilio API, Vertex AI & Google Cloud services.",
   "keywords": [
     "memba",
