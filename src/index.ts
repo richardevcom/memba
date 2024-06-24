@@ -90,15 +90,11 @@ app.post(
             (reminder) =>
               reminder.time === reminderDate && reminder.text === reminderText,
           );
-          const reminderAlreadySent = user.reminders.find(
-            (reminder) => reminder.sent === true,
-          );
+
           if (reminderAlreadyExists) {
             twiml.message(
               `A reminder for "${reminderText}" already exists with that date and message.`,
             );
-          } else if (reminderAlreadySent) {
-            console.log('[rembo] Reminder already sent.');
           } else {
             await db.user.update({
               where: {
