@@ -1,5 +1,7 @@
 ## ''memba?: SMS Reminders for Seniors
 
+![GitHub package.json version](https://img.shields.io/github/package-json/v/richardevcom/memba)
+
 <p align="center">
     <img src="https://i.ibb.co/2jhkNs2/memba-ezgif-com-loop-count.gif" />
 </p>
