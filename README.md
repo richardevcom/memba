@@ -1,4 +1,4 @@
-## ''memba?: SMS Reminders for Seniors
+## 'memba? SMS Reminders for Seniors
 
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/richardevcom/memba)
 
@@ -7,6 +7,8 @@
 </p>
 
 **Memba** is a digital assistant designed to help seniors stay on top of their daily tasks by sending them SMS reminders. It leverages the power of Google Cloud services and machine learning to provide a user-friendly and intelligent solution.
+
+![Github-sponsors](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA)
 
 ### Features
 
