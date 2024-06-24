@@ -58,7 +58,7 @@ async function findAndScheduleReminders() {
 
   console.log(`[rembo] found  ${reminders.length} reminders`);
   reminders.forEach((reminder) => {
-    if (reminder.time <= now && reminder.sent === false) {
+    if (reminder.time <= now && !reminder.sent) {
       scheduleReminder(reminder, now);
     }
   });
