@@ -90,10 +90,15 @@ app.post(
             (reminder) =>
               reminder.time === reminderDate && reminder.text === reminderText,
           );
+          const reminderAlreadySent = user.reminders.find(
+            (reminder) => reminder.sent === true,
+          );
           if (reminderAlreadyExists) {
             twiml.message(
               `A reminder for "${reminderText}" already exists with that date and message.`,
             );
+          } else if (reminderAlreadySent) {
+            console.log('[rembo] Reminder already sent.');
           } else {
             await db.user.update({
               where: {
@@ -104,6 +109,7 @@ app.post(
                   create: {
                     time: reminderDate,
                     text: reminderText,
+                    sent: false,
                   },
                 },
               },
@@ -120,6 +126,7 @@ app.post(
                 create: {
                   time: reminderDate,
                   text: reminderText,
+                  sent: false,
                 },
               },
             },
@@ -136,7 +143,7 @@ app.post(
         `[rembo] error processing message: ${JSON.stringify(e, null, 2)}`,
       );
       twiml.message(
-        'Sorry, I am having trouble understanding you. You can try again by rephrasing your request.',
+        'Sorry, I am having trouble processing your reminder. Please try again.',
       );
     }
     console.log(`[rembo] sending sms message: ${twiml.toString()}`);

@@ -40,23 +40,13 @@ async function findAndScheduleReminders() {
   );
   const reminders: Reminder[] = await db.reminder.findMany({
     where: {
-      AND: [
-        {
-          time: {
-            gte: windowStart,
-          },
-        },
-        {
-          time: {
-            lte: windowEnd,
-          },
-        },
-      ],
+      sent: false,
     },
     select: {
       id: true,
       time: true,
       text: true,
+      sent: true,
       user: {
         select: {
           phone: true,
@@ -67,7 +57,8 @@ async function findAndScheduleReminders() {
 
   console.log(`[rembo] found  ${reminders.length} reminders`);
   reminders.forEach((reminder) => {
-    scheduleReminder(reminder, now);
+    // scheduleReminder(reminder, now);
+    console.log(`[rembo] ${reminder}`);
   });
 }
 
@@ -89,7 +80,7 @@ function scheduleReminder(reminder: Reminder, now: Date) {
     async () => {
       try {
         const res = await client.messages.create({
-          body: reminder.text,
+          body: `Reminder: ${reminder.text}`,
           from: env.TWILIO_PHONE_NUMBER,
           to: reminder.user.phone,
         });
