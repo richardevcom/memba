@@ -9,6 +9,15 @@ import { getGeminiResponse } from './model';
 import { db } from './db';
 import { startScheduler } from './scheduler';
 
+const UNAVAILABLE_COUNTRIES: Map<string, string> = new Map([
+  ['RU', 'Russia'],
+  ['IL', 'Israel'],
+  ['PS', 'Palestine'],
+  ['BY', 'Belarus'],
+  ['AZ', 'Azerbaijan'],
+  ['BD', 'Bangladesh'],
+  ['CN', 'China'],
+]);
 const app = express();
 startScheduler();
 
@@ -36,6 +45,22 @@ app.post(
   ),
   async (req: Request, res: Response) => {
     console.log(`[rembo] received sms message: ${JSON.stringify(req.body)}`);
+
+    // multi tz countries are not supported
+    if (
+      req.body.FromCountry &&
+      UNAVAILABLE_COUNTRIES.has(req.body.FromCountry)
+    ) {
+      const twiml = new MessagingResponse();
+      twiml.message(
+        `Sorry, I am unable to process requests from ${UNAVAILABLE_COUNTRIES.get(
+          req.body.FromCountry,
+        )}.`,
+      );
+      console.log(`[rembo] sending sms message: ${twiml.toString()}`);
+      return res.type('text/xml').send(twiml.toString());
+    }
+
     const geminiResponse = await getGeminiResponse(
       req.body.Body,
       req.body.From,
