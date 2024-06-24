@@ -1,8 +1,10 @@
 ## ''memba?: SMS Reminders for Seniors
 
-![memba?](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2RrY2Vma2xvN3V2OTBidHYwcDNndTFwZm1rdjE3Z3pqcmduOXRjYSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/MDixGhATJd56NXt0us/giphy.gifhttps://i.ibb.co/2jhkNs2/memba-ezgif-com-loop-count.gif)
+!['memba?](https://i.ibb.co/2jhkNs2/memba-ezgif-com-loop-count.gif)
+<br/>
 
 ![Dev.to blog post](https://dev.to/richardevcom/memba-twilio-vertex-ai-reminder-system-for-seniors-who-dont-memba-33id-temp-slug-6245621)![GitHub package.json version](https://img.shields.io/github/package-json/v/richardevcom/memba)
+![GitHub package.json version](https://img.shields.io/github/package-json/v/richardevcom/memba)
 
 **Memba** is a digital assistant designed to help seniors stay on top of their daily tasks by sending them SMS reminders. It leverages the power of Google Cloud services and machine learning to provide a user-friendly and intelligent solution.
 
