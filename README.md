@@ -46,6 +46,7 @@ npm install
 TWILIO_ACCOUNT_SID=your_twilio_account_sid
 TWILIO_AUTH_TOKEN=your_twilio_auth_token
 TWILIO_PHONE_NUMBER=your_twilio_phone_number
+API_ENDPOINT=your_node_api_endpoint
 VERTEX_AI_PROJECT_ID=your_vertex_ai_project_id
 VERTEX_AI_LOCATION=your_vertex_ai_location
 GOOGLE_CLOUD_PROJECT=your_google_cloud_project_id
