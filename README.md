@@ -83,5 +83,5 @@ We welcome contributions to Memba! Please see the `CONTRIBUTING.md` file (if it 
 
 ### Authors
 
-- [Ayush](https://github.com/is-it-ayush))
-- [richardevcom](https://github.com/richardevcom))
+- [Ayush](https://github.com/is-it-ayush)
+- [richardevcom](https://github.com/richardevcom)
