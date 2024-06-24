@@ -7,7 +7,7 @@
 </p>
 
 **Memba** is a digital assistant designed to help seniors stay on top of their daily tasks by sending them SMS reminders. It leverages the power of Google Cloud services and machine learning to provide a user-friendly and intelligent solution.
-
+_*This project was created as part of **Twilio challange**._
 ![Github-sponsors](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA)
 
 ### Features
