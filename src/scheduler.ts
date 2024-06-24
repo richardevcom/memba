@@ -58,17 +58,14 @@ async function findAndScheduleReminders() {
 
   console.log(`[rembo] found  ${reminders.length} reminders`);
   reminders.forEach((reminder) => {
-    if (reminder.time <= now) scheduleReminder(reminder, now);
+    if (reminder.time <= now && reminder.sent === false) {
+      scheduleReminder(reminder, now);
+    }
   });
 }
 
 /** Schedules a reminder to be sent */
 function scheduleReminder(reminder: Reminder, now: Date) {
-  if (reminder.sent === true) {
-    console.log(`[rembo] reminder has been already sent, skipping scheduling`);
-    return;
-  }
-
   const firingTime = differenceInMilliseconds(reminder.time, now);
 
   console.log(
@@ -77,39 +74,35 @@ function scheduleReminder(reminder: Reminder, now: Date) {
   setTimeout(
     async () => {
       try {
-        const res = await client.messages
-          .create({
-            body: `Reminder: ${reminder.text}`,
-            from: env.TWILIO_PHONE_NUMBER,
-            to: reminder.user.phone,
-          })
-          .then(async () => {
-            console.log(
-              `[rembo] sent sms from scheduler: ${JSON.stringify(
-                {
-                  responseBody: res.body,
-                  reminder: reminder,
-                },
-                null,
-                2,
-              )}`,
-            );
+        const res = await client.messages.create({
+          body: `Reminder: ${reminder.text}`,
+          from: env.TWILIO_PHONE_NUMBER,
+          to: reminder.user.phone,
+        });
 
-            try {
-              await db.reminder.update({
-                where: {
-                  id: reminder.id,
-                },
-                data: {
-                  sent: true,
-                },
-              });
-            } catch (err) {
-              console.log(
-                `[rembo] error updating 'sent' field to true: ${err}`,
-              );
-            }
+        console.log(
+          `[rembo] sent sms from scheduler: ${JSON.stringify(
+            {
+              responseBody: res.body,
+              reminder: reminder,
+            },
+            null,
+            2,
+          )}`,
+        );
+
+        try {
+          await db.reminder.update({
+            where: {
+              id: reminder.id,
+            },
+            data: {
+              sent: true,
+            },
           });
+        } catch (err) {
+          console.log(`[rembo] error updating 'sent' field to true: ${err}`);
+        }
       } catch (e) {
         console.log(
           `[rembo] error sending sms from scheduler: ${JSON.stringify(
