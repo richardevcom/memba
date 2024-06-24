@@ -38,7 +38,7 @@ app.post(
   '/message',
   twilio.webhook(
     {
-      url: `https://rembo-4lewwrw27q-ew.a.run.app/message`,
+      url: env.API_ENDPOINT,
       authToken: env.TWILIO_AUTH_TOKEN,
     },
     env.TWILIO_AUTH_TOKEN,

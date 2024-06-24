@@ -9,6 +9,7 @@ const environmentSchema = z.object({
   TWILIO_AUTH_TOKEN: z.string(),
   TWILIO_ACCOUNT_SID: z.string(),
   TWILIO_PHONE_NUMBER: z.string(),
+  API_ENDPOINT: z.string(),
   DATABASE_URL: z.string(),
   GCP_PROJECT_ID: z.string(),
   GCP_REGION: z.string(),
