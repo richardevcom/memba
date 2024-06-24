@@ -60,6 +60,14 @@ async function findAndScheduleReminders() {
   reminders.forEach((reminder) => {
     if (reminder.time <= now && !reminder.sent) {
       scheduleReminder(reminder, now);
+    } else {
+      console.log(
+        `[rembo] testing `,
+        reminder.time,
+        now,
+        reminder.time <= now,
+        reminder.sent,
+      );
     }
   });
 }
